@@ -262,13 +262,13 @@ export class FamilySafety {
   /**
    * Approve a pending screen-time request and grant an extension.
    *
-   * @param requestId - The request ID (from `getPendingRequests()`)
+   * @param puid - The user's PUID (from `getAccounts()`)
    * @param extensionMinutes - Extension to grant in **minutes** (e.g. 60 = 1 hour)
    */
-  async approvePendingRequest(requestId: string, extensionMinutes: number): Promise<boolean> {
+  async approvePendingRequest(puid: number, extensionMinutes: number): Promise<boolean> {
     const requests = await this.getPendingRequests()
-    const request = requests.find((r) => r.id === requestId)
-    if (!request) throw new Error(`Pending request ${requestId} not found`)
+    const request = requests.find((r) => r.puid === puid)
+    if (!request) throw new Error(`No pending request found for user ${puid}`)
     const res = await this._api.approvePendingRequest(request.puid, {
       type: request.type,
       id: request.id,
@@ -286,10 +286,10 @@ export class FamilySafety {
   }
 
   /** Deny a pending screen-time request. */
-  async denyPendingRequest(requestId: string): Promise<boolean> {
+  async denyPendingRequest(puid: number): Promise<boolean> {
     const requests = await this.getPendingRequests()
-    const request = requests.find((r) => r.id === requestId)
-    if (!request) throw new Error(`Pending request ${requestId} not found`)
+    const request = requests.find((r) => r.puid === puid)
+    if (!request) throw new Error(`No pending request found for user ${puid}`)
     const res = await this._api.denyPendingRequest(request.puid, {
       type: request.type,
       id: request.id,

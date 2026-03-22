@@ -131,11 +131,11 @@ export class FamilySafetyAPI {
     })
   }
 
-  async approvePendingRequest(userId: string, body: unknown) {
+  async approvePendingRequest(userId: number, body: unknown) {
     return this.sendRequest('approve_pending_request', { body, params: { USER_ID: userId } })
   }
 
-  async denyPendingRequest(userId: string, body: unknown) {
+  async denyPendingRequest(userId: number, body: unknown) {
     return this.sendRequest('deny_pending_request', { body, params: { USER_ID: userId } })
   }
 

@@ -42,8 +42,8 @@ declare class FamilySafetyAPI {
     getOverrideDeviceRestrictions(userId: string): Promise<ApiResponse<unknown>>;
     overrideDeviceRestriction(userId: string, body: unknown): Promise<ApiResponse<unknown>>;
     setAppPolicy(userId: string, appId: string, body: unknown, platform?: string): Promise<ApiResponse<unknown>>;
-    approvePendingRequest(userId: string, body: unknown): Promise<ApiResponse<unknown>>;
-    denyPendingRequest(userId: string, body: unknown): Promise<ApiResponse<unknown>>;
+    approvePendingRequest(userId: number, body: unknown): Promise<ApiResponse<unknown>>;
+    denyPendingRequest(userId: number, body: unknown): Promise<ApiResponse<unknown>>;
     getSchedule(userId: string, platform?: string): Promise<ApiResponse<unknown>>;
     updateSchedule(userId: string, body: unknown, platform?: string): Promise<ApiResponse<unknown>>;
 }
@@ -132,7 +132,7 @@ interface SpendingResponse {
 }
 interface PendingRequest {
     id: string;
-    puid: string;
+    puid: number;
     type: string;
     lockTime: string;
     platform: string;
@@ -366,12 +366,12 @@ declare class FamilySafety {
     /**
      * Approve a pending screen-time request and grant an extension.
      *
-     * @param requestId - The request ID (from `getPendingRequests()`)
+     * @param puid - The user's PUID (from `getAccounts()`)
      * @param extensionMinutes - Extension to grant in **minutes** (e.g. 60 = 1 hour)
      */
-    approvePendingRequest(requestId: string, extensionMinutes: number): Promise<boolean>;
+    approvePendingRequest(puid: number, extensionMinutes: number): Promise<boolean>;
     /** Deny a pending screen-time request. */
-    denyPendingRequest(requestId: string): Promise<boolean>;
+    denyPendingRequest(puid: number): Promise<boolean>;
     /**
      * Fetch and populate `this.accounts` with full device, app, and screentime data.
      * Useful for polling scenarios (e.g. Home Assistant). Not needed for direct method calls.

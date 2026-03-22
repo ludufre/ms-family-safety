@@ -93,7 +93,7 @@ export interface SpendingResponse {
 
 export interface PendingRequest {
   id: string
-  puid: string
+  puid: number
   type: string
   lockTime: string
   platform: string

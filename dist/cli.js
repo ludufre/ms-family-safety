@@ -876,13 +876,13 @@ var FamilySafety = class _FamilySafety {
   /**
    * Approve a pending screen-time request and grant an extension.
    *
-   * @param requestId - The request ID (from `getPendingRequests()`)
+   * @param puid - The user's PUID (from `getAccounts()`)
    * @param extensionMinutes - Extension to grant in **minutes** (e.g. 60 = 1 hour)
    */
-  async approvePendingRequest(requestId, extensionMinutes) {
+  async approvePendingRequest(puid, extensionMinutes) {
     const requests = await this.getPendingRequests();
-    const request = requests.find((r) => r.id === requestId);
-    if (!request) throw new Error(`Pending request ${requestId} not found`);
+    const request = requests.find((r) => r.puid === puid);
+    if (!request) throw new Error(`No pending request found for user ${puid}`);
     const res = await this._api.approvePendingRequest(request.puid, {
       type: request.type,
       id: request.id,
@@ -899,10 +899,10 @@ var FamilySafety = class _FamilySafety {
     return res.status === 204;
   }
   /** Deny a pending screen-time request. */
-  async denyPendingRequest(requestId) {
+  async denyPendingRequest(puid) {
     const requests = await this.getPendingRequests();
-    const request = requests.find((r) => r.id === requestId);
-    if (!request) throw new Error(`Pending request ${requestId} not found`);
+    const request = requests.find((r) => r.puid === puid);
+    if (!request) throw new Error(`No pending request found for user ${puid}`);
     const res = await this._api.denyPendingRequest(request.puid, {
       type: request.type,
       id: request.id,
@@ -1184,24 +1184,26 @@ commonOpts(
   persist(fs);
 });
 commonOpts(
-  program.command("approve-request").description("Approve a pending screen-time request").argument("<request-id>", "Request ID (from the `pending` command)").argument("<minutes>", "Extension to grant in minutes (e.g. 60 = 1 hour)")
-).action(async (requestId, minutesStr, opts) => {
+  program.command("approve-request").description("Approve a pending screen-time request").argument("<user-id>", "User PUID (from the `accounts` command)").argument("<minutes>", "Extension to grant in minutes (e.g. 60 = 1 hour)")
+).action(async (userIdStr, minutesStr, opts) => {
+  const puid = parseInt(userIdStr, 10);
   const minutes = parseInt(minutesStr, 10);
   if (isNaN(minutes) || minutes <= 0) {
     console.error("Minutes must be a positive number");
     process.exit(1);
   }
   const fs = buildFamilySafety(opts);
-  await fs.approvePendingRequest(requestId, minutes);
-  console.log(`Approved request ${requestId} with ${minutes} minute(s) extension`);
+  await fs.approvePendingRequest(puid, minutes);
+  console.log(`Approved pending request for user ${puid} with ${minutes} minute(s) extension`);
   persist(fs);
 });
 commonOpts(
-  program.command("deny-request").description("Deny a pending screen-time request").argument("<request-id>", "Request ID (from the `pending` command)")
-).action(async (requestId, opts) => {
+  program.command("deny-request").description("Deny a pending screen-time request").argument("<user-id>", "User PUID (from the `accounts` command)")
+).action(async (userIdStr, opts) => {
+  const puid = parseInt(userIdStr, 10);
   const fs = buildFamilySafety(opts);
-  await fs.denyPendingRequest(requestId);
-  console.log(`Denied request ${requestId}`);
+  await fs.denyPendingRequest(puid);
+  console.log(`Denied pending request for user ${puid}`);
   persist(fs);
 });
 program.parseAsync(process.argv).catch((err) => {

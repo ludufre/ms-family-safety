@@ -251,17 +251,18 @@ commonOpts(
   program
     .command('approve-request')
     .description('Approve a pending screen-time request')
-    .argument('<request-id>', 'Request ID (from the `pending` command)')
+    .argument('<user-id>', 'User PUID (from the `accounts` command)')
     .argument('<minutes>', 'Extension to grant in minutes (e.g. 60 = 1 hour)'),
-).action(async (requestId: string, minutesStr: string, opts) => {
+).action(async (userIdStr: string, minutesStr: string, opts) => {
+  const puid = parseInt(userIdStr, 10)
   const minutes = parseInt(minutesStr, 10)
   if (isNaN(minutes) || minutes <= 0) {
     console.error('Minutes must be a positive number')
     process.exit(1)
   }
   const fs = buildFamilySafety(opts)
-  await fs.approvePendingRequest(requestId, minutes)
-  console.log(`Approved request ${requestId} with ${minutes} minute(s) extension`)
+  await fs.approvePendingRequest(puid, minutes)
+  console.log(`Approved pending request for user ${puid} with ${minutes} minute(s) extension`)
   persist(fs)
 })
 
@@ -269,11 +270,12 @@ commonOpts(
   program
     .command('deny-request')
     .description('Deny a pending screen-time request')
-    .argument('<request-id>', 'Request ID (from the `pending` command)'),
-).action(async (requestId: string, opts) => {
+    .argument('<user-id>', 'User PUID (from the `accounts` command)'),
+).action(async (userIdStr: string, opts) => {
+  const puid = parseInt(userIdStr, 10)
   const fs = buildFamilySafety(opts)
-  await fs.denyPendingRequest(requestId)
-  console.log(`Denied request ${requestId}`)
+  await fs.denyPendingRequest(puid)
+  console.log(`Denied pending request for user ${puid}`)
   persist(fs)
 })
 
